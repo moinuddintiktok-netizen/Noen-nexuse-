@@ -1,21 +1,14 @@
-name: Build Neon Nexus Arcade
+name: Neon Nexus Arcade Build
 
 on:
 workflow_dispatch:
-push:
-branches:
-- main
-- master
-paths:
-- "neon_nexus_arcade.py"
-- ".github/workflows/build.yml"
 
 permissions:
 contents: read
 
 jobs:
 build-windows:
-name: Build Windows EXE
+name: Build Neon Nexus EXE
 runs-on: windows-latest
 
 steps:
@@ -26,39 +19,29 @@ steps:
     uses: actions/setup-python@v5
     with:
       python-version: "3.12"
-      cache: pip
 
-  - name: Upgrade pip
-    run: python -m pip install --upgrade pip
-
-  - name: Install Game Dependencies
+  - name: Install Dependencies
     run: |
+      python -m pip install --upgrade pip
       python -m pip install pygame pyinstaller
 
-  - name: Verify Python File
+  - name: Check Python Syntax
     run: python -m py_compile neon_nexus_arcade.py
 
-  - name: Test Pygame Installation
-    run: python -c "import pygame; print('Pygame version:', pygame.version.ver)"
-
-  - name: Build Standalone EXE
-    run: |
-      pyinstaller `
-        --noconfirm `
-        --clean `
-        --onefile `
-        --windowed `
-        --name NeonNexusArcade `
-        neon_nexus_arcade.py
+  - name: Build Windows EXE
+    run: >
+      pyinstaller --noconfirm --clean --onefile --windowed
+      --name NeonNexusArcade neon_nexus_arcade.py
 
   - name: Verify EXE
+    shell: pwsh
     run: |
       if (!(Test-Path "dist/NeonNexusArcade.exe")) {
-        throw "Build failed: EXE file not found."
+        throw "EXE build failed."
       }
-      Get-Item "dist/NeonNexusArcade.exe"
+      Write-Host "EXE build successful."
 
-  - name: Upload Windows Game
+  - name: Upload Game Artifact
     uses: actions/upload-artifact@v4
     with:
       name: Neon-Nexus-Arcade-Windows
