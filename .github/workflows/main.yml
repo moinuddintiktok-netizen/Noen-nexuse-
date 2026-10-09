@@ -1,6 +1,6 @@
 name: Neon Nexus Arcade Build
 
-on:
+"on":
 workflow_dispatch:
 
 permissions:
